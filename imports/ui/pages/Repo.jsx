@@ -2,21 +2,38 @@ import React, { Component } from 'react';
 import { Meteor } from 'meteor/meteor';
 
 export default class Repo extends Component {
-  render() {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: null,
+      error: null,
+    };
     Meteor.call('repos.getInfo', {
       username: this.props.params.user,
       repo: this.props.params.repo,
-    }, (err, res) => {
+    }, (err, data) => {
       if (err) {
-        console.log(err);
+        this.state.error = err;
       } else {
-        console.log(res);
+        this.state.data = data;
       }
+      this.forceUpdate();
     });
+  }
 
+  render() {
     return (
       <div className="repo">
         <p>Viewing info for {this.props.params.repo} by {this.props.params.user}</p>
+        { (!this.state.error && !this.state.data) &&
+          <p>Loading Repo Data...</p>
+        }
+        { this.state.error &&
+          <p>There has been a server-side error. Please contact support.</p>
+        }
+        { this.state.data &&
+          <p>This repo was last edited on {this.state.data.repository.pushedAt}</p>
+        }
       </div>
     );
   }
