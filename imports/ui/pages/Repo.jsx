@@ -24,7 +24,16 @@ export default class Repo extends Component {
   render() {
     return (
       <div className="repo">
-        <p>Viewing info for {this.props.params.repo} by {this.props.params.user}</p>
+        { this.state.data ?
+          <p>Viewing info for
+             &nbsp;<a href={this.state.data.repository.url}>{this.props.params.repo}</a>&nbsp;
+             by&nbsp;
+             <a href={this.state.data.repository.owner.url}>{this.props.params.user}</a>
+             &nbsp;
+          </p>
+            :
+          <p>Viewing info for {this.props.params.repo} {this.props.params.user}</p>
+        }
         { (!this.state.error && !this.state.data) &&
           <p>Loading Repo Data...</p>
         }
@@ -32,7 +41,16 @@ export default class Repo extends Component {
           <p>There has been a server-side error. Please contact support.</p>
         }
         { this.state.data &&
-          <p>This repo was last edited on {this.state.data.repository.pushedAt}</p>
+          <div>
+            <p>This repo was last edited on {this.state.data.repository.pushedAt}</p>
+            <p><b>Description: </b> {this.state.data.repository.description}</p>
+            <b>Warnings:</b>
+            <ul>
+              { !this.state.data.repository.hasIssuesEnabled &&
+                <li>Issues are not enabled</li>
+              }
+            </ul>
+          </div>
         }
       </div>
     );

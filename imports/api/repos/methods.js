@@ -27,7 +27,13 @@ const client = new ApolloClient({
 const repoQuery = gql`
   query repoQuery($username: String!, $repo: String!){
     repository(owner: $username, name: $repo) {
-      pushedAt
+      pushedAt,
+      description,
+      hasIssuesEnabled,
+      url,
+      owner{
+        url
+      }
       ref(qualifiedName: "master") {
         name
         prefix
