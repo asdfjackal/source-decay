@@ -1,6 +1,23 @@
 import React, { Component } from 'react';
 
 export default class App extends Component {
+  userLog() {
+    console.log(Meteor.user());
+  }
+
+  loginWithGithub() {
+    console.log('onclick working')
+    Meteor.loginWithGithub({
+      loginStyle: 'popup',
+    }, (err) => {
+      if (err) {
+        // handle error
+      } else {
+        console.log('success!')
+      }
+    });
+  }
+
   render() {
     const {
       children,
@@ -9,6 +26,8 @@ export default class App extends Component {
     return (
       <div>
         <h1>Source Decay Alpha</h1>
+        <button onClick={this.loginWithGithub}>Login with gitub</button>
+        <button onClick={this.userLog}>Is user logged in?</button>
         {children}
       </div>
     );
