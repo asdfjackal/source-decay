@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import moment from 'moment';
+import DaysAgo from '../components/DaysAgo.jsx';
 
 export default class CommitList extends Component {
   constructor(props) {
     super(props);
-    this.messageLength = 60;
+    this.messageLength = 50;
   }
 
   trimMessage(message) {
@@ -19,7 +19,7 @@ export default class CommitList extends Component {
       const items = this.props.commits.map(commit =>
         <li key={commit.id}>
           <a href={commit.url}>{this.trimMessage(commit.message)}</a>
-          &nbsp;made {moment(commit.committer.date).fromNow()}
+          &nbsp;made <DaysAgo datetime={commit.committer.date} />
           &nbsp;by <a href={commit.committer.user.url}>{commit.committer.user.name}</a>
         </li>
       );
