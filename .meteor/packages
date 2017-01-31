@@ -21,3 +21,7 @@ static-html
 fourseven:scss
 
 react-meteor-data
+
+accounts-base
+accounts-ui
+accounts-github

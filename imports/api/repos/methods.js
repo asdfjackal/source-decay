@@ -27,19 +27,28 @@ const client = new ApolloClient({
 const repoQuery = gql`
   query repoQuery($username: String!, $repo: String!){
     repository(owner: $username, name: $repo) {
+      createdAt,
       pushedAt,
       description,
       hasIssuesEnabled,
       url,
       owner{
         url
-      }
+      },
       ref(qualifiedName: "master") {
         name
         prefix
         target {
           ...commitFragment
         }
+      },
+      issues(first:1,states:OPEN){
+        nodes{
+          title,
+          createdAt,
+          url
+        },
+        totalCount
       }
     }
   }
@@ -54,12 +63,16 @@ const repoQuery = gql`
         }
       }
     }
-    history(first: 10) {
-      edges {
-        node {
-          message,
-          committer {
-            date
+    history(first: 5) {
+      nodes {
+        id,
+        url,
+        message,
+        committer{
+          date,
+          user{
+            url,
+            name
           }
         }
       }

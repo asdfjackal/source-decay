@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import { Meteor } from 'meteor/meteor';
+import moment from 'moment';
+import CommitList from '../components/CommitList.jsx';
+import IssueSummary from '../components/IssueSummary.jsx';
 
 export default class Repo extends Component {
   constructor(props) {
@@ -16,6 +19,7 @@ export default class Repo extends Component {
         this.state.error = err;
       } else {
         this.state.data = data;
+        console.log(data);
       }
       this.forceUpdate();
     });
@@ -25,11 +29,10 @@ export default class Repo extends Component {
     return (
       <div className="repo">
         { this.state.data ?
-          <p>Viewing info for
-             &nbsp;<a href={this.state.data.repository.url}>{this.props.params.repo}</a>&nbsp;
-             by&nbsp;
+          <p>Viewing info for&nbsp;
+             <a href={this.state.data.repository.url}>{this.props.params.repo}</a>
+             &nbsp;by&nbsp;
              <a href={this.state.data.repository.owner.url}>{this.props.params.user}</a>
-             &nbsp;
           </p>
             :
           <p>Viewing info for {this.props.params.repo} {this.props.params.user}</p>
@@ -42,8 +45,14 @@ export default class Repo extends Component {
         }
         { this.state.data &&
           <div>
-            <p>This repo was last edited on {this.state.data.repository.pushedAt}</p>
+            <p>This repo was created {moment(this.state.data.repository.createdAt).fromNow()}</p>
+            <p>This repo was last edited {moment(this.state.data.repository.pushedAt).fromNow()}</p>
             <p><b>Description: </b> {this.state.data.repository.description}</p>
+            <IssueSummary
+              issues={this.state.data.repository.issues.nodes}
+              issueCount={this.state.data.repository.issues.totalCount}
+            />
+            <CommitList commits={this.state.data.repository.ref.target.history.nodes} />
             <b>Warnings:</b>
             <ul>
               { !this.state.data.repository.hasIssuesEnabled &&
