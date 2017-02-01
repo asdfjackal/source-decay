@@ -8,6 +8,7 @@ Meteor.startup(() => {
     {
       $set: {
         clientId: process.env.GITHUB_ID,
+        requestPermissions: ['user'],
         loginStyle: 'popup',
         secret: process.env.GITHUB_SECRET,
       },

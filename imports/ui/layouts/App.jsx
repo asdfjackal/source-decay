@@ -1,33 +1,38 @@
+import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
+import { Link } from 'react-router';
+import AuthWidget from '../components/AuthWidget.jsx';
 
 export default class App extends Component {
-  userLog() {
-    console.log(Meteor.user());
+  constructor(props) {
+    super(props);
+    this.logout = this.logout.bind(this);
+    this.loginWithGithub = this.loginWithGithub.bind(this);
+  }
+
+  logout() {
+    Meteor.logout();
   }
 
   loginWithGithub() {
-    console.log('onclick working')
     Meteor.loginWithGithub({
-      loginStyle: 'popup',
     }, (err) => {
       if (err) {
         // handle error
-      } else {
-        console.log('success!')
       }
     });
   }
 
   render() {
     const {
+      user,
       children,
     } = this.props;
 
     return (
       <div>
-        <h1>Source Decay Alpha</h1>
-        <button onClick={this.loginWithGithub}>Login with gitub</button>
-        <button onClick={this.userLog}>Is user logged in?</button>
+        <h1><Link to="/">Source Decay Alpha</Link></h1>
+        <AuthWidget user={user} logout={this.logout} login={this.loginWithGithub} />
         {children}
       </div>
     );
@@ -35,5 +40,6 @@ export default class App extends Component {
 }
 
 App.propTypes = {
+  user: React.PropTypes.object,
   children: React.PropTypes.element,
 };
