@@ -16,6 +16,7 @@ export default class App extends Component {
 
   loginWithGithub() {
     Meteor.loginWithGithub({
+      requestPermissions: ['user', 'repo'],
     }, (err) => {
       if (err) {
         // handle error
@@ -33,7 +34,7 @@ export default class App extends Component {
       <div>
         <h1><Link to="/">Source Decay Alpha</Link></h1>
         <AuthWidget user={user} logout={this.logout} login={this.loginWithGithub} />
-        {children}
+        {React.cloneElement(children, { user })}
       </div>
     );
   }

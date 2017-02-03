@@ -4,11 +4,11 @@ import CommitList from '../components/CommitList.jsx';
 import IssueSummary from '../components/IssueSummary.jsx';
 import DaysAgo from '../components/DaysAgo.jsx';
 
-export default class Repo extends Component {
+export default class Summary extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: null,
+      repository: null,
       error: null,
     };
     Meteor.call('repos.getInfo', {
@@ -18,6 +18,7 @@ export default class Repo extends Component {
       if (err) {
         this.state.error = err;
       } else {
+        console.log(data);
         this.state.repository = data.repository;
       }
       this.forceUpdate();
@@ -69,6 +70,6 @@ export default class Repo extends Component {
   }
 }
 
-Repo.propTypes = {
+Summary.propTypes = {
   params: React.PropTypes.object,
 };
