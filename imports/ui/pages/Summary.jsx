@@ -18,7 +18,6 @@ export default class Summary extends Component {
       if (err) {
         this.state.error = err;
       } else {
-        console.log(data);
         this.state.repository = data.repository;
       }
       this.forceUpdate();

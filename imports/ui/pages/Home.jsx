@@ -2,12 +2,23 @@ import React, { Component } from 'react';
 import RepoList from '../components/RepoList.jsx';
 
 export default class Home extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
       data: null,
       error: null,
     };
+    if (props.user) {
+      Meteor.call('repos.getList', {
+      }, (err, data) => {
+        if (err) {
+          this.state.error = err;
+        } else {
+          this.state.data = data;
+        }
+      });
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -15,13 +26,14 @@ export default class Home extends Component {
       Meteor.call('repos.getList', {
       }, (err, data) => {
         if (err) {
-          this.setState({ err });
-          this.state.error = err;
+          this.setState({ error: err });
         } else {
           this.setState({ data });
-          this.state.data = data;
         }
       });
+    } else {
+      this.setState({ error: null });
+      this.setState({ data: null });
     }
   }
 

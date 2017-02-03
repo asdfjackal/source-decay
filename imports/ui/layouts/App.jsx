@@ -6,12 +6,17 @@ import AuthWidget from '../components/AuthWidget.jsx';
 export default class App extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      user: Meteor.user(),
+    };
     this.logout = this.logout.bind(this);
     this.loginWithGithub = this.loginWithGithub.bind(this);
   }
 
   logout() {
-    Meteor.logout();
+    Meteor.logout(() => {
+      this.setState({ user: Meteor.user() });
+    });
   }
 
   loginWithGithub() {
@@ -21,14 +26,18 @@ export default class App extends Component {
       if (err) {
         // handle error
       }
+      this.setState({ user: Meteor.user() });
     });
   }
 
   render() {
     const {
-      user,
       children,
     } = this.props;
+
+    const {
+      user,
+    } = this.state;
 
     return (
       <div>
@@ -41,6 +50,5 @@ export default class App extends Component {
 }
 
 App.propTypes = {
-  user: React.PropTypes.object,
   children: React.PropTypes.element,
 };

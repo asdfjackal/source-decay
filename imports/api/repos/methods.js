@@ -7,27 +7,11 @@ import { Meteor } from 'meteor/meteor';
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
 import gql from 'graphql-tag';
 import 'isomorphic-fetch';
+import { polyfill } from 'es6-promise';
 
-const coreNetworkInterface = createNetworkInterface({
-  uri: 'https://api.github.com/graphql',
-});
+polyfill();
 
-coreNetworkInterface.use([{
-  applyMiddleware(req, next) {
-    if (!req.options.headers) {
-      req.options.headers = {};  // Create the header object if needed.
-    }
-
-    // get the authentication token from local storage if it exists
-    const token = process.env.SD_TOKEN;
-    req.options.headers.authorization = token ? `Bearer ${token}` : null;
-    next();
-  },
-}]);
-
-const coreClient = new ApolloClient({
-  coreNetworkInterface,
-});
+const githubToken = process.env.SD_TOKEN;
 
 function clientFromToken(token) {
   const networkInterface = createNetworkInterface({
@@ -52,12 +36,18 @@ function clientFromToken(token) {
 }
 
 const repoListQuery = gql`
-  query{
-    viewer{
-      repositories(first:10){
-        nodes{
-          name,
-          description
+  query repoListQuery {
+    viewer {
+      repositories(first: 25) {
+        nodes {
+          name
+          description,
+          url,
+          isPrivate,
+          id,
+          owner{
+            login
+          }
         }
       }
     }
@@ -65,7 +55,7 @@ const repoListQuery = gql`
 `;
 
 const repoSummaryQuery = gql`
-  query repoQuery($username: String!, $repo: String!){
+  query repoSummaryQuery($username: String!, $repo: String!){
     repository(owner: $username, name: $repo) {
       createdAt,
       pushedAt,
@@ -127,7 +117,7 @@ const repoSummaryQuery = gql`
 
 Meteor.methods({
   'repos.getInfo'({ username, repo }) {
-    const data = coreClient.query({
+    const data = clientFromToken(githubToken).query({
       query: repoSummaryQuery,
       variables: { username, repo } }).then(
     result =>
