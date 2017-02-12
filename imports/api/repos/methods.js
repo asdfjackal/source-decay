@@ -9,6 +9,8 @@ import gql from 'graphql-tag';
 import 'isomorphic-fetch';
 import { polyfill } from 'es6-promise';
 
+import Repos from './repos.js';
+
 polyfill();
 
 const githubToken = process.env.SD_TOKEN;
@@ -62,7 +64,10 @@ const repoSummaryQuery = gql`
       description,
       hasIssuesEnabled,
       url,
+      id,
+      name,
       owner{
+        login,
         url
       },
       ref(qualifiedName: "master") {
@@ -117,16 +122,34 @@ const repoSummaryQuery = gql`
 
 Meteor.methods({
   'repos.getInfo'({ username, repo }) {
-    const data = clientFromToken(githubToken).query({
+    // const repoData = Repos.findOne({ repository: { owner: { login: username }, name: repo } });
+    const repoData = Repos.findOne({ 'repository.owner.login': username, 'repository.name': repo });
+
+    if (repoData) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      if (repoData.datetime > yesterday) {
+        return repoData;
+      }
+    }
+
+    return clientFromToken(githubToken).query({
       query: repoSummaryQuery,
       variables: { username, repo } }).then(
-    result =>
-      result.data,
+    (result) => {
+      const data = result.data;
+      data.datetime = new Date();
+      Repos.rawCollection().update(data.repository.id, data, { upsert: true });
+      return data;
+    },
     reason =>
       reason
     );
 
-    return data;
+    // if (data.repository) {
+    //   data.datetime = new Date();
+    //   Repos.upsert(data.repository.id, data);
+    // }
   },
   'repos.getList'() {
     const data = clientFromToken(Meteor.user().services.github.accessToken).query({
