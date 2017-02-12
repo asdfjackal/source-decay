@@ -5,7 +5,7 @@ export default class RepoList extends Component {
   renderRows() {
     const { repos } = this.props;
     return repos.map(repo =>
-      <tr key={repos.id}>
+      <tr key={repo.id}>
         <td><Link to={`/summary/${repo.owner.login}/${repo.name}`}>{repo.name}</Link>
           {repo.isPrivate &&
             <i className="fa fa-lock" />
@@ -22,7 +22,7 @@ export default class RepoList extends Component {
         <h2>Repo List</h2>
         <table style={{ width: '100%' }}>
           <thead>
-            <tr>
+            <tr key={0}>
               <th>Name</th>
               <th>Description</th>
               <th>View on Github</th>

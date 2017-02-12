@@ -17,6 +17,7 @@ export default class Home extends Component {
         } else {
           this.state.data = data;
         }
+        this.forceUpdate();
       });
     }
   }

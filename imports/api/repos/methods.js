@@ -122,7 +122,6 @@ const repoSummaryQuery = gql`
 
 Meteor.methods({
   'repos.getInfo'({ username, repo }) {
-    // const repoData = Repos.findOne({ repository: { owner: { login: username }, name: repo } });
     const repoData = Repos.findOne({ 'repository.owner.login': username, 'repository.name': repo });
 
     if (repoData) {
@@ -145,11 +144,6 @@ Meteor.methods({
     reason =>
       reason
     );
-
-    // if (data.repository) {
-    //   data.datetime = new Date();
-    //   Repos.upsert(data.repository.id, data);
-    // }
   },
   'repos.getList'() {
     const data = clientFromToken(Meteor.user().services.github.accessToken).query({
@@ -162,5 +156,19 @@ Meteor.methods({
     );
 
     return data;
+  },
+  'repos.forceUpdate'({ username, repo }) {
+    return clientFromToken(githubToken).query({
+      query: repoSummaryQuery,
+      variables: { username, repo } }).then(
+    (result) => {
+      const data = result.data;
+      data.datetime = new Date();
+      Repos.rawCollection().update(data.repository.id, data, { upsert: true });
+      return data;
+    },
+    reason =>
+      reason
+    );
   },
 });

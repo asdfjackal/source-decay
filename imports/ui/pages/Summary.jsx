@@ -11,6 +11,7 @@ export default class Summary extends Component {
       repository: null,
       error: null,
     };
+    this.forceDataUpdate = this.forceDataUpdate.bind(this);
     Meteor.call('repos.getInfo', {
       username: this.props.params.user,
       repo: this.props.params.repo,
@@ -21,6 +22,19 @@ export default class Summary extends Component {
         this.state.repository = data.repository;
       }
       this.forceUpdate();
+    });
+  }
+
+  forceDataUpdate() {
+    Meteor.call('repos.forceUpdate', {
+      username: this.props.params.user,
+      repo: this.props.params.repo,
+    }, (err, data) => {
+      if (err) {
+        this.setState({ error: err });
+      } else {
+        this.setState({ repository: data.repository });
+      }
     });
   }
 
@@ -44,6 +58,7 @@ export default class Summary extends Component {
         }
         { this.state.repository &&
           <div>
+            <p>Refresh <i className="fa fa-refresh" onClick={this.forceDataUpdate} /></p>
             <p>This repo was created&nbsp;
               <DaysAgo datetime={this.state.repository.createdAt} />
             </p>
