@@ -1,60 +1,16 @@
 /* eslint-disable object-shorthand */
-/* eslint-disable no-param-reassign */
 /* Disable object shorthand error as the suggested naming scheme for meteor methods
 violates the rule*/
 
 import { Meteor } from 'meteor/meteor';
-import ApolloClient, { createNetworkInterface } from 'apollo-client';
 import gql from 'graphql-tag';
 import 'isomorphic-fetch';
 import { polyfill } from 'es6-promise';
+import { clientFromToken, githubToken } from '../common.js';
 
 import Repos from './repos.js';
 
 polyfill();
-
-const githubToken = process.env.SD_TOKEN;
-
-function clientFromToken(token) {
-  const networkInterface = createNetworkInterface({
-    uri: 'https://api.github.com/graphql',
-  });
-
-  networkInterface.use([{
-    applyMiddleware(req, next) {
-      if (!req.options.headers) {
-        req.options.headers = {};  // Create the header object if needed.
-      }
-
-      // get the authentication token from local storage if it exists
-      req.options.headers.authorization = token ? `Bearer ${token}` : null;
-      next();
-    },
-  }]);
-
-  return new ApolloClient({
-    networkInterface,
-  });
-}
-
-const repoListQuery = gql`
-  query repoListQuery {
-    viewer {
-      repositories(first: 25) {
-        nodes {
-          name
-          description,
-          url,
-          isPrivate,
-          id,
-          owner{
-            login
-          }
-        }
-      }
-    }
-  }
-`;
 
 const repoSummaryQuery = gql`
   query repoSummaryQuery($username: String!, $repo: String!){
@@ -144,18 +100,6 @@ Meteor.methods({
     reason =>
       reason
     );
-  },
-  'repos.getList'() {
-    const data = clientFromToken(Meteor.user().services.github.accessToken).query({
-      query: repoListQuery,
-    }).then(
-    result =>
-      result.data,
-    reason =>
-      reason
-    );
-
-    return data;
   },
   'repos.forceUpdate'({ username, repo }) {
     return clientFromToken(githubToken).query({

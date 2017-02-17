@@ -24,7 +24,7 @@ export default class Home extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.user) {
-      Meteor.call('repos.getList', {
+      Meteor.call('userData.getRepoList', {
       }, (err, data) => {
         if (err) {
           this.setState({ error: err });
